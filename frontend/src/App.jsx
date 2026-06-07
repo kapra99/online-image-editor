@@ -30,17 +30,15 @@ export default function App() {
 
   const selectImage = useCallback(async (img) => {
     setSelectedId(img.id);
-    setSidebarOpen(false); // close the drawer on mobile after picking an image
-    // Load the edit history that was persisted in SQLite so undo/redo and the
-    // current edited view survive switching images AND a full page refresh.
-    const full = await fetchImage(img.id); // { ...image, history: [...] }
+    setSidebarOpen(false);
+    const full = await fetchImage(img.id);
     const history = (full.history || []).map((h) => ({
       operation: h.operation,
-      // params is stored as a JSON string in the DB — parse it back to an object.
+      
       params: typeof h.params === 'string' ? JSON.parse(h.params) : h.params,
       resultFilename: h.result_filename,
     }));
-    // Start positioned at the most recent step (or -1 = original if no edits).
+    
     const historyIndex = history.length - 1;
     setCurrentFile({
       image: img,
@@ -48,12 +46,12 @@ export default function App() {
         historyIndex < 0
           ? getImageUrl(img)
           : getProcessedUrl(history[historyIndex].resultFilename),
-      history,           // [{ operation, params, resultFilename }]
-      historyIndex,      // -1 = showing original
+      history,           
+      historyIndex,      
     });
   }, []);
 
-  // Apply a new edit operation
+  
   const handleEdit = useCallback(async (operation, params) => {
     if (!currentFile) return;
     setProcessing(true);
@@ -61,7 +59,7 @@ export default function App() {
       const nextIndex = currentFile.historyIndex + 1;
       const result = await applyEdit(currentFile.image.id, operation, params, nextIndex);
 
-      // Trim any redo-branch steps that are now invalidated
+      
       const trimmed = currentFile.history.slice(0, currentFile.historyIndex + 1);
       const newHistory = [...trimmed, { operation, params, resultFilename: result.resultFilename }];
 
@@ -78,7 +76,7 @@ export default function App() {
     }
   }, [currentFile]);
 
-  // Undo: move back one step and re-render at that point
+  
   const handleUndo = useCallback(async () => {
     if (!currentFile || currentFile.historyIndex < 0) return;
     setProcessing(true);
@@ -98,13 +96,13 @@ export default function App() {
     }
   }, [currentFile]);
 
-  // Redo: move forward one step using the already-stored resultFilename
+  
   const handleRedo = useCallback(async () => {
     if (!currentFile || currentFile.historyIndex >= currentFile.history.length - 1) return;
     setProcessing(true);
     try {
       const nextIndex = currentFile.historyIndex + 1;
-      // Use the cached resultFilename from our history array — no new backend call needed
+      
       const cached = currentFile.history[nextIndex]?.resultFilename;
       if (cached) {
         setCurrentFile(prev => ({
@@ -115,7 +113,7 @@ export default function App() {
         setProcessing(false);
         return;
       }
-      // Fallback: ask backend to re-render (shouldn't usually be needed)
+      
       const result = await revertToStep(currentFile.image.id, nextIndex);
       setCurrentFile(prev => ({
         ...prev,
@@ -157,20 +155,20 @@ export default function App() {
 
   return (
     <div className="d-flex overflow-hidden bg-ink-900 text-ink-50" style={{ height: '100vh' }}>
-      {/* Mobile drawer backdrop */}
+      
       {sidebarOpen && (
         <div className="sidebar-backdrop d-lg-none" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      
       <aside className={`app-sidebar d-flex flex-column bg-ink-900 ${sidebarOpen ? 'open' : ''}`}>
-        {/* Logo */}
+        
         <div className="px-4 py-3 border-bottom border-ink-800 d-flex align-items-baseline gap-2">
           <span className="text-accent font-mono fw-medium fs-5">pixl</span>
           <span className="text-ink-600 font-mono" style={{ fontSize: '.7rem' }}>editor</span>
         </div>
 
-        {/* Tabs */}
+        
         <div className="d-flex border-bottom border-ink-800">
           <button
             onClick={() => setSidebarTab('library')}
@@ -186,7 +184,7 @@ export default function App() {
           </button>
         </div>
 
-        {/* Sidebar content */}
+        
         <div className="flex-grow-1 overflow-auto">
           {sidebarTab === 'library' ? (
             <Library images={images} selectedId={selectedId} onSelect={selectImage} onDelete={handleDelete} loading={loading} />
@@ -196,9 +194,9 @@ export default function App() {
         </div>
       </aside>
 
-      {/* Main column */}
+      
       <div className="d-flex flex-column flex-grow-1 overflow-hidden">
-        {/* Mobile top bar (hamburger) — hidden on lg+ where the sidebar is static */}
+        
         <div className="d-lg-none d-flex align-items-center gap-2 px-3 py-2 border-bottom border-ink-800 bg-ink-900 flex-shrink-0">
           <button className="btn btn-ink btn-sm p-1" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu size={18} />

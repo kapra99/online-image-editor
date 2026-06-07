@@ -1,9 +1,4 @@
-/*
- * Theme layer on top of Bootstrap 5.
- * Bootstrap handles layout/spacing/buttons/forms via its utility classes.
- * Here we define the bespoke dark "ink" palette + lime accent and a few
- * custom components (checkerboard canvas bg, dropzone, history chips).
- */
+
 
 :root {
   --ink-900: #0f0f0f;
@@ -42,7 +37,7 @@ body {
   cursor: pointer;
 }
 
-/* Spinner animation for lucide loader icons */
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -52,7 +47,7 @@ body {
   animation: spin 1s linear infinite;
 }
 
-/* ── Palette helpers ─────────────────────────────────────── */
+
 .bg-ink-900 {
   background-color: var(--ink-900) !important;
 }
@@ -96,7 +91,7 @@ body {
   border-color: var(--ink-800) !important;
 }
 
-/* ── Buttons ─────────────────────────────────────────────── */
+
 .btn-accent {
   background-color: var(--accent);
   color: var(--ink-900);
@@ -111,7 +106,7 @@ body {
   opacity: 0.5;
 }
 
-/* Subtle transparent icon button */
+
 .btn-ink {
   background: transparent;
   border: none;
@@ -126,7 +121,7 @@ body {
   cursor: not-allowed;
 }
 
-/* ── Sidebar tabs ────────────────────────────────────────── */
+
 .tab-btn {
   background: transparent;
   border: none;
@@ -141,7 +136,7 @@ body {
   border-bottom-color: var(--accent);
 }
 
-/* ── Library items ───────────────────────────────────────── */
+
 .app-sidebar {
   width: 260px;
   flex-shrink: 0;
@@ -169,7 +164,7 @@ body {
   color: #f87171;
 }
 
-/* ── Vertical divider in toolbar ─────────────────────────── */
+
 .vr-ink {
   display: inline-block;
   width: 1px;
@@ -178,7 +173,7 @@ body {
   margin: 0 0.25rem;
 }
 
-/* ── Canvas ──────────────────────────────────────────────── */
+
 .canvas-area {
   background: #111;
 }
@@ -190,7 +185,7 @@ body {
   border-radius: 4px;
 }
 
-/* ── Upload dropzone ─────────────────────────────────────── */
+
 .dropzone {
   border: 2px dashed var(--ink-600);
   cursor: pointer;
@@ -204,7 +199,7 @@ body {
   background: rgba(232, 255, 71, 0.05);
 }
 
-/* ── History chips ───────────────────────────────────────── */
+
 .chip {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.7rem;
@@ -224,7 +219,7 @@ body {
   font-weight: 600;
 }
 
-/* ── Toast ───────────────────────────────────────────────── */
+
 .toast-note {
   position: absolute;
   bottom: 1.25rem;
@@ -238,7 +233,7 @@ body {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* ── Scrollbars ──────────────────────────────────────────── */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -254,7 +249,7 @@ body {
   background: #666;
 }
 
-/* ── Range sliders ───────────────────────────────────────── */
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -282,8 +277,7 @@ input[type="range"]::-moz-range-thumb {
   border: none;
 }
 
-/* ── Responsive / mobile ─────────────────────────────────── */
-/* Below the lg breakpoint the sidebar becomes a slide-in drawer. */
+
 @media (max-width: 991.98px) {
   .app-sidebar {
     position: fixed;

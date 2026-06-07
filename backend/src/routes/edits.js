@@ -12,16 +12,11 @@ const PROCESSED_DIR = path.join(__dirname, '../../processed');
 
 const router = express.Router();
 
-/**
- * Apply a chain of operations to the original image file.
- * Each op.params comes from the DB as a JSON string — we parse it here.
- */
+
 async function applyOps(sourceFile, ops) {
-  // Always start from the original, auto-rotating from EXIF
   let pipeline = sharp(sourceFile).rotate();
 
   for (const op of ops) {
-    // params is stored as JSON string in SQLite; parse if needed
     const p = typeof op.params === 'string' ? JSON.parse(op.params) : op.params;
 
     switch (op.operation) {
@@ -35,7 +30,6 @@ async function applyOps(sourceFile, ops) {
         break;
 
       case 'blur':
-        // Sharp blur sigma must be >= 0.3
         pipeline = pipeline.blur(Math.max(0.3, Number(p.sigma) || 1));
         break;
 
@@ -65,8 +59,6 @@ async function applyOps(sourceFile, ops) {
     }
   }
 
-  // Preserve the original format (keep PNG/WebP transparency; correct extension
-  // on download). Sharp infers the output format from the file extension.
   const ext = (path.extname(sourceFile) || '.png').toLowerCase();
   const outFilename = `${uuidv4()}${ext}`;
   const outPath = path.join(PROCESSED_DIR, outFilename);
@@ -74,10 +66,6 @@ async function applyOps(sourceFile, ops) {
   return outFilename;
 }
 
-/**
- * POST /api/edits/:imageId
- * Apply a new edit step. Clears any redo branch ahead of stepIndex.
- */
 router.post('/:imageId', async (req, res) => {
   try {
     const db = getDb();
@@ -90,8 +78,6 @@ router.post('/:imageId', async (req, res) => {
     const image = db.prepare('SELECT * FROM images WHERE id = ?').get(req.params.imageId);
     if (!image) return res.status(404).json({ error: 'Image not found' });
 
-    // Clear redo branch — and delete the cached processed files for those
-    // discarded steps so they don't pile up on disk.
     const stale = db.prepare(
       'SELECT result_filename FROM edit_history WHERE image_id = ? AND step_index >= ?'
     ).all(req.params.imageId, stepIndex);
@@ -103,13 +89,12 @@ router.post('/:imageId', async (req, res) => {
     db.prepare('DELETE FROM edit_history WHERE image_id = ? AND step_index >= ?')
       .run(req.params.imageId, stepIndex);
 
-    // Insert new step (params stored as JSON string)
+  
     db.prepare(`
       INSERT INTO edit_history (image_id, step_index, operation, params)
       VALUES (?, ?, ?, ?)
     `).run(req.params.imageId, stepIndex, operation, JSON.stringify(params));
 
-    // Re-apply full chain from original
     const steps = db.prepare(
       'SELECT * FROM edit_history WHERE image_id = ? ORDER BY step_index ASC'
     ).all(req.params.imageId);
@@ -117,7 +102,6 @@ router.post('/:imageId', async (req, res) => {
     const sourceFile = path.join(UPLOADS_DIR, image.filename);
     const resultFilename = await applyOps(sourceFile, steps);
 
-    // Cache result filename on this step
     db.prepare('UPDATE edit_history SET result_filename = ? WHERE image_id = ? AND step_index = ?')
       .run(resultFilename, req.params.imageId, stepIndex);
 
@@ -128,11 +112,6 @@ router.post('/:imageId', async (req, res) => {
   }
 });
 
-/**
- * POST /api/edits/:imageId/revert
- * Re-renders the image at a given step for undo/redo.
- * stepIndex = -1 means show original (no processing).
- */
 router.post('/:imageId/revert', async (req, res) => {
   try {
     const db = getDb();
@@ -141,14 +120,11 @@ router.post('/:imageId/revert', async (req, res) => {
     const image = db.prepare('SELECT * FROM images WHERE id = ?').get(req.params.imageId);
     if (!image) return res.status(404).json({ error: 'Image not found' });
 
-    // -1 means original image — frontend handles showing /uploads/filename directly
+  
     if (stepIndex < 0) {
       return res.json({ success: true, resultFilename: null });
     }
 
-    // Each applied step already cached its rendered result. Undo/redo just needs
-    // that cached file — no need to re-run Sharp (which would create a new file
-    // on every undo and leak disk space).
     const step = db.prepare(
       'SELECT result_filename FROM edit_history WHERE image_id = ? AND step_index = ?'
     ).get(req.params.imageId, stepIndex);
@@ -157,7 +133,6 @@ router.post('/:imageId/revert', async (req, res) => {
       return res.json({ success: true, resultFilename: step.result_filename });
     }
 
-    // Fallback (cache missing for some reason): rebuild the chain and re-cache.
     const steps = db.prepare(
       'SELECT * FROM edit_history WHERE image_id = ? AND step_index <= ? ORDER BY step_index ASC'
     ).all(req.params.imageId, stepIndex);

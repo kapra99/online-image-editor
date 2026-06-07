@@ -30,7 +30,7 @@ export default function Library({ images, selectedId, onSelect, onDelete, loadin
           onClick={() => onSelect(img)}
           className={`lib-item d-flex align-items-center gap-2 p-2 rounded ${selectedId === img.id ? 'selected' : ''}`}
         >
-          {/* Thumbnail */}
+          
           <div className="flex-shrink-0 rounded overflow-hidden bg-ink-700" style={{ width: 44, height: 44 }}>
             <img
               src={getImageUrl(img)}
@@ -40,7 +40,7 @@ export default function Library({ images, selectedId, onSelect, onDelete, loadin
             />
           </div>
 
-          {/* Name + dimensions */}
+          
           <div className="flex-grow-1 min-w-0">
             <p className="small fw-medium text-ink-100 text-truncate mb-0">{img.original_name}</p>
             <p className="text-ink-400 font-mono mb-0" style={{ fontSize: '.7rem' }}>
@@ -48,7 +48,7 @@ export default function Library({ images, selectedId, onSelect, onDelete, loadin
             </p>
           </div>
 
-          {/* Delete */}
+          
           <button
             onClick={e => { e.stopPropagation(); onDelete(img.id); }}
             className="delete-btn btn btn-sm border-0 p-1"

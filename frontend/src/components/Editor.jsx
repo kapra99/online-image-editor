@@ -16,7 +16,6 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
   const [tool, setTool] = useState(null);
   const [imgEl, setImgEl] = useState(null);
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
-  // imgDisplay stores canvas position+size AND the actual pixel size of current image
   const [imgDisplay, setImgDisplay] = useState({ x: 0, y: 0, width: 0, height: 0, scale: 1, naturalW: 0, naturalH: 0 });
   const [cropRect, setCropRect] = useState(null);
   const [blurValue, setBlurValue] = useState(3);
@@ -28,16 +27,15 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
   const cropRectRef = useRef();
   const transformerRef = useRef();
 
-  // Load image whenever URL changes
   useEffect(() => {
-    setImgEl(null); // clear while loading to avoid flash of old image
+    setImgEl(null);
     const el = new window.Image();
     el.crossOrigin = 'anonymous';
     el.src = currentFile.url + '?t=' + Date.now();
     el.onload = () => setImgEl(el);
   }, [currentFile.url]);
 
-  // Fit the image into the available canvas area (centered, scaled to fit).
+
   const fitImage = useCallback(() => {
     if (!imgEl || !containerRef.current) return;
     const { clientWidth: cw, clientHeight: ch } = containerRef.current;
@@ -57,12 +55,9 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     });
   }, [imgEl]);
 
-  // Refit whenever the image loads.
+
   useEffect(() => { fitImage(); }, [fitImage]);
 
-  // Refit when the canvas area changes size — window resize, phone rotation, or
-  // the mobile sidebar drawer opening/closing. Without this the Konva stage keeps
-  // its old dimensions and the image ends up mis-scaled or off-centre.
   useEffect(() => {
     const node = containerRef.current;
     if (!node) return;
@@ -71,7 +66,6 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     return () => ro.disconnect();
   }, [fitImage]);
 
-  // Reset crop rect when crop tool is activated
   useEffect(() => {
     if (tool === 'crop' && imgDisplay.width > 0) {
       const pad = Math.min(imgDisplay.width, imgDisplay.height) * 0.1;
@@ -84,9 +78,9 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     } else {
       setCropRect(null);
     }
-  }, [tool]); // intentionally only on tool change, not imgDisplay
+  }, [tool]); 
 
-  // Attach Konva Transformer to the crop rect node after it renders
+
   useEffect(() => {
     if (tool === 'crop' && cropRect && transformerRef.current) {
       const attach = () => {
@@ -105,14 +99,14 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     setTimeout(() => setNotification(null), 2800);
   };
 
-  // ── Crop ──────────────────────────────────────────────────────────────────
+  
   const handleApplyCrop = useCallback(async () => {
     if (!cropRect || !imgDisplay.width) return;
 
-    // Convert canvas coordinates → current image's pixel coordinates
+    
     const { scale, x: ox, y: oy, naturalW, naturalH } = imgDisplay;
 
-    // Clamp to image bounds
+    
     const canvasLeft = Math.max(imgDisplay.x, cropRect.x);
     const canvasTop  = Math.max(imgDisplay.y, cropRect.y);
     const canvasRight  = Math.min(imgDisplay.x + imgDisplay.width,  cropRect.x + cropRect.width);
@@ -125,7 +119,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
       height: Math.round((canvasBottom - canvasTop)  / scale),
     };
 
-    // Guard against degenerate or out-of-bounds crops
+    
     if (params.x < 0) { params.width  += params.x; params.x = 0; }
     if (params.y < 0) { params.height += params.y; params.y = 0; }
     params.width  = Math.min(params.width,  naturalW - params.x);
@@ -138,7 +132,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     showNotification('success', 'Crop applied');
   }, [cropRect, imgDisplay, onEdit]);
 
-  // ── Blur / Sharpen ────────────────────────────────────────────────────────
+  
   const handleApplyBlur = useCallback(async () => {
     await onEdit('blur', { sigma: blurValue });
     showNotification('success', `Blur applied (σ = ${blurValue})`);
@@ -149,7 +143,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     showNotification('success', 'Sharpen applied');
   }, [sharpenValue, onEdit]);
 
-  // ── Rotate / Flip (instant, no options panel) ───────────────────────────────
+  
   const handleRotate = useCallback(async () => {
     await onEdit('rotate', { angle: 90 });
     showNotification('success', 'Rotated 90°');
@@ -160,7 +154,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
     showNotification('success', `Flipped ${direction === 'horizontal' ? 'horizontally' : 'vertically'}`);
   }, [onEdit]);
 
-  // ── Download ──────────────────────────────────────────────────────────────
+
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = currentFile.url;
@@ -192,7 +186,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
 
         <div className="flex-grow-1" />
 
-        {/* Undo / Redo */}
+        
         <button onClick={onUndo} disabled={!canUndo || processing}
           className="btn btn-ink btn-sm p-1 rounded" title="Undo">
           <Undo2 size={15} />
@@ -204,7 +198,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
 
         <span className="vr-ink" />
 
-        {/* Instant transforms: rotate + flip (backend handles the pixels) */}
+        
         <button onClick={handleRotate} disabled={processing}
           className="btn btn-ink btn-sm p-1 rounded" title="Rotate 90° clockwise">
           <RotateCw size={15} />
@@ -220,7 +214,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
 
         <span className="vr-ink" />
 
-        {/* Tool buttons */}
+        
         {TOOLS.map(({ id, label, icon: Icon }) => (
           <button key={id}
             onClick={() => setTool(tool === id ? null : id)}
@@ -237,7 +231,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
         </button>
       </div>
 
-      {/* ── Tool options strip ─────────────────────────────── */}
+      
       {tool && (
         <div className="d-flex flex-wrap align-items-center gap-2 px-3 py-2 border-bottom border-ink-800 bg-ink-800 flex-shrink-0">
 
@@ -302,7 +296,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
         </div>
       )}
 
-      {/* ── Canvas ─────────────────────────────────────────── */}
+      
       <div ref={containerRef} className="flex-grow-1 position-relative overflow-hidden canvas-area">
         {/* Checkerboard */}
         <div className="position-absolute top-0 start-0 w-100 h-100 checkerboard" style={{ pointerEvents: 'none' }} />
@@ -320,19 +314,19 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
                 height={imgDisplay.height}
               />
 
-              {/* Crop overlay */}
+              
               {tool === 'crop' && cropRect && (() => {
                 const { x: ix, y: iy, width: iw, height: ih } = imgDisplay;
                 const { x: cx, y: cy, width: cw, height: ch } = cropRect;
                 return (
                   <>
-                    {/* Dark overlay — 4 rects around the crop selection */}
+                    
                     <Rect x={ix} y={iy} width={iw} height={cy - iy}             fill="rgba(0,0,0,0.55)" listening={false} />
                     <Rect x={ix} y={cy + ch} width={iw} height={iy + ih - cy - ch} fill="rgba(0,0,0,0.55)" listening={false} />
                     <Rect x={ix} y={cy} width={cx - ix} height={ch}             fill="rgba(0,0,0,0.55)" listening={false} />
                     <Rect x={cx + cw} y={cy} width={ix + iw - cx - cw} height={ch} fill="rgba(0,0,0,0.55)" listening={false} />
 
-                    {/* Draggable crop rect */}
+                    
                     <Rect
                       ref={cropRectRef}
                       x={cropRect.x} y={cropRect.y}
@@ -384,14 +378,14 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
           </Stage>
         )}
 
-        {/* Loading new image */}
+        
         {!imgEl && (
           <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
             <Loader2 size={24} className="spin text-ink-600" />
           </div>
         )}
 
-        {/* Processing overlay */}
+        
         {processing && (
           <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
             style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)', zIndex: 10 }}>
@@ -402,7 +396,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
           </div>
         )}
 
-        {/* Toast notification */}
+        
         {notification && (
           <div className={`toast-note d-flex align-items-center gap-2 ${
             notification.type === 'success' ? 'bg-accent text-ink-900' : 'bg-danger text-white'
@@ -413,7 +407,7 @@ export default function Editor({ currentFile, onEdit, onUndo, onRedo, processing
         )}
       </div>
 
-      {/* ── History bar ────────────────────────────────────── */}
+      
       {historyLabels.length > 0 && (
         <div className="d-flex align-items-center gap-1 px-3 py-2 border-top border-ink-800 bg-ink-900 overflow-auto flex-shrink-0">
           <span className="small text-ink-500 flex-shrink-0 me-1">History</span>

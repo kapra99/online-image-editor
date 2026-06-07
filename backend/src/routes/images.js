@@ -3,7 +3,7 @@ import { getDb } from '../db.js';
 
 const router = express.Router();
 
-// List all images
+
 router.get('/', (_req, res) => {
   try {
     const images = getDb().prepare('SELECT * FROM images ORDER BY created_at DESC').all();
@@ -13,7 +13,7 @@ router.get('/', (_req, res) => {
   }
 });
 
-// Get single image with its edit history
+
 router.get('/:id', (req, res) => {
   try {
     const db = getDb();
@@ -30,7 +30,7 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// Delete image and its history
+
 router.delete('/:id', (req, res) => {
   try {
     const db = getDb();

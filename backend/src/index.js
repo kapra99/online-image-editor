@@ -15,7 +15,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Serve uploaded originals and processed files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/processed', express.static(path.join(__dirname, '../processed')));
 
