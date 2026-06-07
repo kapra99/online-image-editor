@@ -35,7 +35,7 @@ A full-stack image editing web application built with React, Node.js, and Sharp.
 
 ```bash
 git clone <repo-url>
-cd image-editor
+cd online-image-editor
 docker compose up --build
 ```
 
