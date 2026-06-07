@@ -1,0 +1,308 @@
+/*
+ * Theme layer on top of Bootstrap 5.
+ * Bootstrap handles layout/spacing/buttons/forms via its utility classes.
+ * Here we define the bespoke dark "ink" palette + lime accent and a few
+ * custom components (checkerboard canvas bg, dropzone, history chips).
+ */
+
+:root {
+  --ink-900: #0f0f0f;
+  --ink-800: #1a1a1a;
+  --ink-700: #242424;
+  --ink-600: #adadad;
+  --ink-500: #666;
+  --ink-400: #888;
+  --ink-200: #d0d0d0;
+  --ink-100: #e8e8e8;
+  --ink-50: #f5f5f5;
+  --accent: #47bbff;
+  --accent-dim: #3e9fd6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--ink-900);
+  color: var(--ink-50);
+  font-family: "DM Sans", sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+.min-w-0 {
+  min-width: 0;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Spinner animation for lucide loader icons */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Palette helpers ─────────────────────────────────────── */
+.bg-ink-900 {
+  background-color: var(--ink-900) !important;
+}
+.bg-ink-800 {
+  background-color: var(--ink-800) !important;
+}
+.bg-ink-700 {
+  background-color: var(--ink-700) !important;
+}
+.text-ink-50 {
+  color: var(--ink-50) !important;
+}
+.text-ink-100 {
+  color: var(--ink-100) !important;
+}
+.text-ink-200 {
+  color: var(--ink-200) !important;
+}
+.text-ink-400 {
+  color: var(--ink-400) !important;
+}
+.text-ink-500 {
+  color: var(--ink-500) !important;
+}
+.text-ink-600 {
+  color: var(--ink-600) !important;
+}
+.text-ink-900 {
+  color: var(--ink-900) !important;
+}
+.text-accent {
+  color: var(--accent) !important;
+}
+.bg-accent {
+  background-color: var(--accent) !important;
+}
+.border-ink-700 {
+  border-color: var(--ink-700) !important;
+}
+.border-ink-800 {
+  border-color: var(--ink-800) !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-accent {
+  background-color: var(--accent);
+  color: var(--ink-900);
+  border: none;
+  font-weight: 600;
+}
+.btn-accent:hover {
+  background-color: var(--accent-dim);
+  color: var(--ink-900);
+}
+.btn-accent:disabled {
+  opacity: 0.5;
+}
+
+/* Subtle transparent icon button */
+.btn-ink {
+  background: transparent;
+  border: none;
+  color: var(--ink-200);
+}
+.btn-ink:hover {
+  background: var(--ink-800);
+  color: var(--ink-50);
+}
+.btn-ink:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Sidebar tabs ────────────────────────────────────────── */
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-400);
+  border-bottom: 2px solid transparent;
+}
+.tab-btn:hover {
+  color: var(--ink-100);
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Library items ───────────────────────────────────────── */
+.app-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--accent);
+}
+.lib-item {
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.lib-item:hover {
+  background: var(--ink-800);
+}
+.lib-item.selected {
+  background: var(--ink-700);
+  border-color: rgba(232, 255, 71, 0.4);
+}
+.lib-item .delete-btn {
+  opacity: 0;
+  color: var(--ink-400);
+}
+.lib-item:hover .delete-btn {
+  opacity: 1;
+}
+.lib-item .delete-btn:hover {
+  color: #f87171;
+}
+
+/* ── Vertical divider in toolbar ─────────────────────────── */
+.vr-ink {
+  display: inline-block;
+  width: 1px;
+  height: 1rem;
+  background: var(--ink-700);
+  margin: 0 0.25rem;
+}
+
+/* ── Canvas ──────────────────────────────────────────────── */
+.canvas-area {
+  background: #111;
+}
+.checkerboard {
+  background-image: repeating-conic-gradient(#191919 0% 25%, #141414 0% 50%);
+  background-size: 20px 20px;
+}
+.konva-container canvas {
+  border-radius: 4px;
+}
+
+/* ── Upload dropzone ─────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--ink-600);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dropzone:hover {
+  border-color: var(--ink-400);
+}
+.dropzone.dragging {
+  border-color: var(--accent);
+  background: rgba(232, 255, 71, 0.05);
+}
+
+/* ── History chips ───────────────────────────────────────── */
+.chip {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--ink-800);
+  color: var(--ink-600);
+  white-space: nowrap;
+}
+.chip.active {
+  background: var(--ink-700);
+  color: var(--ink-200);
+}
+.chip.current {
+  background: var(--accent);
+  color: var(--ink-900);
+  font-weight: 600;
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+.toast-note {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Scrollbars ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* ── Range sliders ───────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+
+/* ── Responsive / mobile ─────────────────────────────────── */
+/* Below the lg breakpoint the sidebar becomes a slide-in drawer. */
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1045;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  }
+  .app-sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1044;
+}
